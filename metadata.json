@@ -2,8 +2,8 @@
   "name": "ats",
   "description": "Installs/Configures ats",
   "long_description": "Description\n===========\n\nRequirements\n============\n\nAttributes\n==========\n\nUsage\n=====\n\n",
-  "maintainer": "Deflect",
-  "maintainer_email": "grant.mcinnes@eyesopen.ca",
+  "maintainer": "Socrata",
+  "maintainer_email": "john.kew@socrata.com",
   "license": "Apache 2.0",
   "platforms": {
   },
@@ -25,5 +25,5 @@
   },
   "recipes": {
   },
-  "version": "0.0.1"
+  "version": "0.0.2"
 }

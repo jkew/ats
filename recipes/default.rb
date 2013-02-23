@@ -10,48 +10,67 @@ package "libexpat-dev"
 package "libpcre3-dev"
 package "libcap-dev"
 
-remote_directory "/usr/src/trafficserver-3.2.0" do
-  source "trafficserver-3.2.0"
-  files_owner "root"
-  files_group "root"
+ats_version=node[:ats][:version]
+artifact = "trafficserver-#{ats_version}.tar.bz2" 
+ats_url = "#{node[:ats][:mirror]}/#{artifact}"
+local_src = "#{node[:ats][:build_root]}/#{artifact}"
+local_src_dir = "#{node[:ats][:build_root]}/trafficserver-#{ats_version}"
+install_root = "/usr/local/trafficserver-#{ats_version}"
+
+remote_file local_src do
+  source ats_url
+  checksum node[:ats][:sha256]
+  action :nothing
+end
+ 
+http_request "ats" do
+  url ats_url
+  action :head
+  if File.exists?(local_src)
+    headers "If-Modified-Since" => File.mtime(local_src).httpdate
+  end
+  notifies :create, resources(:remote_file => local_src), :immediately
+end
+
+execute "tar" do
+ user "root"
+ group "root"
+ cwd node[:ats][:build_root]
+  command "tar jxf #{artifact}"
+ creates local_src_dir
+ action :run
 end
 
 script "install_trafficserver" do
   interpreter "bash"
   user "root"
-  cwd "/usr/src/trafficserver-3.2.0"
+  cwd local_src_dir
   code <<-EOH
   chmod 755 ./configure
-  ./configure --enable-layout=Apache
+  ./configure --prefix=#{install_root} --enable-experimental-plugins
   make
   make install
-  mkdir /usr/local/deflect
-  cp -rp /usr/local/trafficserver /usr/local/deflect/trafficserver-app
-  cd /usr/local/deflect
-  cp -rp trafficserver-app/conf trafficserver-conf
-  mkdir trafficserver-confstg
+  ln -sf #{install_root} #{node[:ats][:link]}
   EOH
-  not_if {File.exist?("/usr/local/deflect/trafficserver-app") &&
-          File.exist?("/usr/local/deflect/trafficserver-conf") &&
-          File.exist?("/usr/local/deflect/trafficserver-confstg")}
+  not_if {File.exist?(install_root)}
 end
 
 
-template "/etc/init.d/trafficserver" do
-  user "root"
-  group "root"
-  source "trafficserver-init.erb"
-  mode '0755'
-end
+#template "/etc/init.d/trafficserver" do
+#  user "root"
+#  group "root"
+#  source "trafficserver-init.erb"
+#  mode '0755'
+#end
 
-template "/etc/default/trafficserver" do
-  user "root"
-  group "root"
-  source "trafficserver.erb"
-  mode '0644'
-end
+#template "/etc/default/trafficserver" do
+#  user "root"
+#  group "root"
+#  source "trafficserver.erb"
+#  mode '0644'
+#end
 
-service "trafficserver" do
-  supports :status => true, :restart => true, :reload => true
-  action [:enable, :start]
-end
+#service "trafficserver" do
+#  supports :status => true, :restart => true, :reload => true
+#  action [:enable, :start]
+#end
