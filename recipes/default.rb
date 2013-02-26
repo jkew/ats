@@ -8,6 +8,8 @@ ats_config = %w(cache.config header_rewrite.config log_hosts.config logs_xml.con
 ats_config.each do |tmpl|
     template "/opt/trafficserver/etc/trafficserver/#{tmpl}" do
       source "#{tmpl}.erb"
+      owner "nobody"
+      group "nogroup"
     end
 end
 

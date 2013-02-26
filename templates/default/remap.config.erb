@@ -1,4 +1,3 @@
 <% node[:ats][:remap].each do |s| -%>
-   map          <%= s %>      <%= node[:ats][:origin] %>
-   reverse_map   <%= node[:ats][:origin] %> <%= s %>
+map          <%= s %>      <%= node[:ats][:origin] %>
 <% end -%>

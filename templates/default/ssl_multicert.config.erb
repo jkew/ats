@@ -41,5 +41,5 @@
 #   dest_ip=209.131.48.79	ssl_cert_name=server.pem ssl_key_name=serverKey.pem
 # desp_ip=ssl.example.com ssl_cert_name=example-test.crt ssl_key_name=example-test.key
 <% node[:ats][:ssl_hosts].each do |s| -%>
-  desp_ip=<%= s %> ssl_cert_name=<%= "#{s}.crt" %> ssl_key_name=<%= "#{s}.key" %>
+desp_ip=<%= s %> ssl_cert_name=<%= "#{s}.crt" %> ssl_key_name=<%= "#{s}.key" %>
 <% end -%>
